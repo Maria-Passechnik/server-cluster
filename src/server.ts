@@ -10,7 +10,7 @@ const port = 4000;
 app.use(cors());
 app.use(bodyParser.json());
 
-app.use("/queue", QueueRouter);
+app.use("/api/queue", QueueRouter);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
