@@ -1,9 +1,16 @@
+import fs from 'fs';
+
 export class QueueService {
   private queues: { [key: string]: any[] } = {};
+  private filePath = './queues.json';
 
+  constructor() {
+    this.loadQueuesFromFile();
+  }
+
+  // Initialize or retrieve a queue
   public getQueue(queueName: string): any[] {
     if (!this.queues[queueName]) {
-      console.log(`Creating new queue: ${queueName}`);
       this.queues[queueName] = [];
     }
     return this.queues[queueName];
@@ -13,7 +20,7 @@ export class QueueService {
   public async addMessage(queueName: string, message: any): Promise<void> {
     const queue = this.getQueue(queueName);
     queue.push(message);
-    console.log(`Added message to ${queueName}:`, message);
+    await this.saveQueuesToFile();
   }
 
   // Get the next message with a timeout
@@ -22,6 +29,7 @@ export class QueueService {
     return new Promise((resolve) => {
       if (queue.length > 0) {
         const message = queue.shift();
+        this.saveQueuesToFile();
         resolve(message);
       } else {
         setTimeout(() => resolve(null), timeout);
@@ -31,9 +39,7 @@ export class QueueService {
 
   // Get all queues and the number of messages in each
   public async getAllQueues(): Promise<{ name: string; count: number }[]> {
-    const queueNames = Object.keys(this.queues);
-    console.log('Fetching all queues:', queueNames);
-    return queueNames.map((queueName) => ({
+    return Object.keys(this.queues).map(queueName => ({
       name: queueName,
       count: this.queues[queueName].length,
     }));
@@ -41,7 +47,6 @@ export class QueueService {
 
   // Initialize default queues with default messages
   public async initializeDefaultQueues(): Promise<void> {
-    console.log('Initializing default queues...');
     const defaultMessages = [
       { message: "Default message 1" },
       { message: "Default message 2" },
@@ -52,13 +57,36 @@ export class QueueService {
 
     for (const queueName of defaultQueueNames) {
       const queue = this.getQueue(queueName);
-      console.log(`Checking queue ${queueName}`);
       if (queue.length === 0) {
-        console.log(`Adding default messages to ${queueName}`);
         defaultMessages.forEach((message) => queue.push(message));
-      } else {
-        console.log(`${queueName} already has messages`);
       }
+    }
+
+    await this.saveQueuesToFile();
+  }
+
+  // Save queues to a JSON file
+  private saveQueuesToFile(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      fs.writeFile(this.filePath, JSON.stringify(this.queues), (err) => {
+        if (err) {
+          console.error('Error saving queues to file:', err);
+          return reject(err);
+        }
+        console.log('Queues saved to file');
+        resolve();
+      });
+    });
+  }
+
+  // Load queues from a JSON file
+  private loadQueuesFromFile(): void {
+    if (fs.existsSync(this.filePath)) {
+      const data = fs.readFileSync(this.filePath, 'utf-8');
+      this.queues = JSON.parse(data);
+      console.log('Queues loaded from file');
+    } else {
+      console.log('No existing queue data found. Starting fresh.');
     }
   }
 }
