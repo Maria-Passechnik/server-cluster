@@ -1,12 +1,11 @@
-import { Router } from 'express';
-import {QueueController} from './queue.controller';
+import { Router } from "express";
+import { QueueController } from "./queue.controller";
 
 const router = Router();
 const queueController = new QueueController();
 
-router.post('/:queue_name', queueController.addMessage);
-router.get('/:queue_name', queueController.getNextMessage);
-router.get('/', queueController.getQueues);
+router.post("/:queue_name", queueController.addMessage);
+router.get("/:queue_name", queueController.getNextMessage);
+router.get("/", queueController.getQueues);
 
 export default router;
-// when the service is up initial the que with 3 messages...
