@@ -36,23 +36,4 @@ export class QueueService {
       count: this.queues[queueName].length,
     }));
   }
-
-  public initializeDefaultQueues(): void {
-    const defaultMessages = [
-      { message: "Default message 1" },
-      { message: "Default message 2" },
-      { message: "Default message 3" },
-    ];
-
-    const defaultQueueNames = ["queue1", "queue2"];
-
-    for (const queueName of defaultQueueNames) {
-      const queue = this.getQueue(queueName);
-      if (queue.length === 0) {
-        defaultMessages.forEach((message) => queue.push(message));
-      }
-    }
-
-    console.log("Default queues initialized");
-  }
 }

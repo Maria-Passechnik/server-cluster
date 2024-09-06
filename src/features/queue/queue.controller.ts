@@ -6,7 +6,6 @@ export class QueueController {
 
   constructor() {
     this.queueService = new QueueService();
-    this.queueService.initializeDefaultQueues();
   }
 
   public addMessage = async (req: Request, res: Response): Promise<void> => {
